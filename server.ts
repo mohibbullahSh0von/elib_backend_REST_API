@@ -1,8 +1,10 @@
-// import 'dotenv/config';
 import app from './src/app.js';
 import { config } from './src/config/config.js';
+import conncectDB from './src/config/db.js';
 
-const startServer = () => {
+const startServer = async () => {
+  await conncectDB();
+
   const port = config.port;
   app.listen(port, () => {
     console.log('The server is listening at port:', port);
@@ -10,5 +12,4 @@ const startServer = () => {
 };
 
 //starting server.
-
 startServer();
