@@ -12,7 +12,7 @@
   "type": "module",
   "main": "server.ts",
   "scripts": {
-    "dev": "tsx watch server.ts"
+    "dev": "tsx watch --inspect server.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
