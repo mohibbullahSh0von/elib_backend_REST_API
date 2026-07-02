@@ -3,10 +3,10 @@ import bookModel from './bookModel.js';
 import { Request, Response, NextFunction } from 'express';
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
-  const { title, gener, author, coverImage, publisher, file } = req.body;
+  const { title, genre, author, coverImage, publisher, file } = req.body;
 
   // Basic  validation
-  if (!title || !gener || !author || !coverImage || !publisher || !file) {
+  if (!title || !genre || !author || !coverImage || !publisher || !file) {
     const error = createHttpError(400, 'All fields are required');
     return next(error);
   }
@@ -21,7 +21,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
   const newBook = await bookModel.create({
     title,
-    gener,
+    genre,
     author,
     coverImage,
     publisher,
