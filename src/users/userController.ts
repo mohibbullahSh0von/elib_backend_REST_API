@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import createHttpError from 'http-errors';
 import userModel from './userModel.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/config.js';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
@@ -11,8 +13,6 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   if (!name || !email || !password) {
     const error = createHttpError(400, 'All fields are required');
     return next(error);
-  } else {
-    res.json({ message: 'User Created!!!' });
   }
 
   //Database call
@@ -28,8 +28,25 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const newUser = await userModel.create({
+    name,
+    email,
+    password: hashedPassword,
+  });
+
+  /// Token generation JWT token
+
+  const token = jwt.sign(
+    {
+      sub: newUser._id,
+    },
+    config.jwtSecret as string,
+    { expiresIn: '7d' },
+  );
+
   // process
   // response
+  res.json({ accessToken: token });
 };
 
 export { createUser };

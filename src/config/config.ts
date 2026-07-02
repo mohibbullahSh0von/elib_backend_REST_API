@@ -7,6 +7,7 @@ const _config = {
   mongodbURI: process.env.MONGODB_URI,
   dbName: process.env.MONGODB_NAME,
   env: process.env.NODE_ENV,
+  jwtSecret: process.env.JWT_SECRET,
 };
 
 export const config = Object.freeze(_config);
