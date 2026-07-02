@@ -17,36 +17,39 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 
   //Database call
 
-  const user = await userModel.findOne({ email });
-  if (user) {
-    const error = createHttpError(400, 'User already exist with this email');
+  try {
+    const user = await userModel.findOne({ email });
+    if (user) {
+      const error = createHttpError(400, 'User already exist with this email');
 
+      return next(error);
+    }
+  } catch (error) {
     return next(error);
   }
-
   /// password --> hash
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await userModel.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
 
-  const newUser = await userModel.create({
-    name,
-    email,
-    password: hashedPassword,
-  });
-
-  /// Token generation JWT token
-
-  const token = jwt.sign(
-    {
-      sub: newUser._id,
-    },
-    config.jwtSecret as string,
-    { expiresIn: '7d' },
-  );
-
-  // process
-  // response
-  res.json({ accessToken: token });
+    /// Token generation JWT token
+    const token = jwt.sign(
+      {
+        sub: newUser._id,
+      },
+      config.jwtSecret as string,
+      { expiresIn: '7d', algorithm: 'HS256' },
+    );
+    // response
+    res.json({ accessToken: token });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 export { createUser };
