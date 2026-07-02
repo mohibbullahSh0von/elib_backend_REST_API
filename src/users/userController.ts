@@ -4,6 +4,7 @@ import userModel from './userModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
+import { User } from './userTypes.js';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
@@ -25,18 +26,24 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       return next(error);
     }
   } catch (error) {
-    return next(error);
+    return next(createHttpError(500, 'Error while getting user'));
   }
+
   /// password --> hash
+  let newUser: User;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await userModel.create({
+    newUser = await userModel.create({
       name,
       email,
       password: hashedPassword,
     });
+  } catch (error) {
+    return next(createHttpError(500, 'error while creating user'));
+  }
 
+  try {
     /// Token generation JWT token
     const token = jwt.sign(
       {
@@ -48,7 +55,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     // response
     res.json({ accessToken: token });
   } catch (error) {
-    return next(error);
+    return next(createHttpError(500, 'Error while signing the jwt token'));
   }
 };
 
