@@ -1,6 +1,6 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { HttpError } from 'http-errors';
-import { config } from './config/config.js';
+import express from 'express';
+import globalErrorHandler from './middlewares/globalErrorHandler.js';
+
 const app = express();
 
 // routes...
@@ -9,14 +9,6 @@ app.get('/', (req, res, next) => {
 });
 
 // global error handler
-
-app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
-  const statusCode = err.statusCode || 500;
-
-  return res.status(statusCode).json({
-    message: err.message,
-    errorStack: config.env === 'development' ? err.stack : '',
-  });
-});
+app.use(globalErrorHandler);
 
 export default app;
